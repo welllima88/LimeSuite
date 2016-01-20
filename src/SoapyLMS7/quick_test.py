@@ -6,6 +6,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import time
+import threading
+
+def threadToPeriodicallyHitSettings(streamBoardSDR):
+    time.sleep(20)
+    streamBoardSDR.setGain(SOAPY_SDR_RX, 0, "LNA", 10.0)
 
 if __name__ == '__main__':
     streamBoardSDR = SoapySDR.Device({"driver":"lime"})
@@ -60,7 +65,24 @@ if __name__ == '__main__':
     streamBoardSDR.writeSetting("ACTIVE_CHANNEL", "B");
     streamBoardSDR.writeSetting("ENABLE_RXTSP_CONST", "true");
 
+    settingsThread = threading.Thread(target=threadToPeriodicallyHitSettings, args=[streamBoardSDR])
+    settingsThread.start()
+
     totalSamps = 0
+    timeLastPrint = time.time()
+    while True:
+        sr = streamBoardSDR.readStream(rxStream, [sampsCh0, sampsCh1], sampsCh0.size, timeoutUs=int(1e6))
+        if sr.ret < 1:
+            print("!!! TIMEOUT %f: %s"%(time.time(), str(sr)))
+        else:
+            totalSamps += sr.ret
+            if time.time() > timeLastPrint + 1.0:
+                print(">>> RECEIVE %f: %d"%(time.time(), totalSamps))
+                timeLastPrint = time.time()
+
+    settingsThread.stop()
+
+    """
     for i in range(1000):
         sr = streamBoardSDR.readStream(rxStream, [sampsCh0, sampsCh1], sampsCh0.size, 0)
         if i == 0: print 'sr0', sr
@@ -84,3 +106,4 @@ if __name__ == '__main__':
     print("Cleanup rx stream")
     streamBoardSDR.deactivateStream(rxStream)
     streamBoardSDR.closeStream(rxStream)
+    """
