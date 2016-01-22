@@ -26,7 +26,7 @@ public:
     LMS7002M_withLogging(void):
         LMS7002M()
     {
-        SoapySDR::setLogLevel(SOAPY_SDR_DEBUG);
+        //SoapySDR::setLogLevel(SOAPY_SDR_DEBUG);
         return;
     }
 
