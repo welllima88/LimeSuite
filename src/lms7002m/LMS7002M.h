@@ -7,7 +7,6 @@
 #ifndef LMS7API_H
 #define LMS7API_H
 
-#include "LMS7002M_statuses.h"
 #include "LMS7002M_parameters.h"
 #include "CalibrationCache.h"
 #include <cstdint>
@@ -76,23 +75,23 @@ public:
     size_t GetActiveChannelIndex(void);
 
     ///@name Registers writing and reading
-    liblms7_status UploadAll();
-    liblms7_status DownloadAll();
+    int UploadAll();
+    int DownloadAll();
     bool IsSynced();
 
-	liblms7_status ResetChip();
-	liblms7_status LoadConfig(const char* filename);
-	liblms7_status SaveConfig(const char* filename);
+	int ResetChip();
+	int LoadConfig(const char* filename);
+	int SaveConfig(const char* filename);
     ///@}
 
     ///@name Registers writing and reading
     uint16_t Get_SPI_Reg_bits(const LMS7Parameter &param, bool fromChip = true);
     uint16_t Get_SPI_Reg_bits(uint16_t address, uint8_t msb, uint8_t lsb, bool fromChip = true);
-    liblms7_status Modify_SPI_Reg_bits(const LMS7Parameter &param, const uint16_t value, bool fromChip = true);
-    liblms7_status Modify_SPI_Reg_bits(uint16_t address, uint8_t msb, uint8_t lsb, uint16_t value, bool fromChip = true);
-    liblms7_status SPI_write(uint16_t address, uint16_t data);
-    uint16_t SPI_read(uint16_t address, bool fromChip = true, liblms7_status *status = 0);
-    liblms7_status RegistersTest();
+    int Modify_SPI_Reg_bits(const LMS7Parameter &param, const uint16_t value, bool fromChip = true);
+    int Modify_SPI_Reg_bits(uint16_t address, uint8_t msb, uint8_t lsb, uint16_t value, bool fromChip = true);
+    int SPI_write(uint16_t address, uint16_t data);
+    uint16_t SPI_read(uint16_t address, bool fromChip = true, int *status = 0);
+    int RegistersTest();
     ///@}
 
     ///@name Calibration protection:
@@ -105,8 +104,8 @@ public:
     ///@}
 
     ///@name Transmitter, Receiver calibrations
-    liblms7_status CalibrateRx(float_type bandwidth_MHz, const bool TDD = false);
-    liblms7_status CalibrateTx(float_type bandwidth_MHz);
+    int CalibrateRx(float_type bandwidth_MHz, const bool TDD = false);
+    int CalibrateTx(float_type bandwidth_MHz);
     ///@}
 
     ///@name Filters tuning
@@ -118,9 +117,9 @@ public:
     {
         RX_TIA, RX_LPF_LOWBAND, RX_LPF_HIGHBAND
     };
-	liblms7_status TuneTxFilter(TxFilter filterType, float_type bandwidth_MHz);
-	liblms7_status TuneTxFilterLowBandChain(float_type ladder_bw_MHz, float_type realpole_bw_MHz);
-	liblms7_status TuneRxFilter(RxFilter filterType, float_type bandwidth_MHz);
+	int TuneTxFilter(TxFilter filterType, float_type bandwidth_MHz);
+	int TuneTxFilterLowBandChain(float_type ladder_bw_MHz, float_type realpole_bw_MHz);
+	int TuneRxFilter(RxFilter filterType, float_type bandwidth_MHz);
     ///@}
 
     ///@name High level gain configuration
@@ -179,7 +178,7 @@ public:
     };
 
     //! Set the RFE input path.
-    liblms7_status SetPathRFE(PathRFE path);
+    int SetPathRFE(PathRFE path);
 
     //! Get the currently set RFE path
     PathRFE GetPathRFE(void);
@@ -188,7 +187,7 @@ public:
      * Set the TRF Band selection.
      * @param band 1 or 2
      */
-    liblms7_status SetBandTRF(const int band);
+    int SetBandTRF(const int band);
 
     /*!
      * Get the TRF Band selection.
@@ -209,30 +208,30 @@ public:
     ///@name CGEN and PLL
 	float_type GetReferenceClk_SX(bool tx);
 	float_type GetFrequencyCGEN_MHz();
-	liblms7_status SetFrequencyCGEN(float_type freq_MHz, const bool retainNCOfrequencies = false);
+	int SetFrequencyCGEN(float_type freq_MHz, const bool retainNCOfrequencies = false);
 	float_type GetFrequencySX_MHz(bool tx, float_type refClk_MHz);
-	liblms7_status SetFrequencySX(bool tx, float_type freq_MHz, float_type refClk_MHz);
+	int SetFrequencySX(bool tx, float_type freq_MHz, float_type refClk_MHz);
     ///VCO modules available for tuning
     enum VCO_Module
     {
         VCO_CGEN, VCO_SXR, VCO_SXT
     };
-    liblms7_status TuneVCO(VCO_Module module);
+    int TuneVCO(VCO_Module module);
     ///@}
 
     ///@name TSP
-	liblms7_status LoadDC_REG_IQ(bool tx, int16_t I, int16_t Q);
-	liblms7_status SetNCOFrequency(bool tx, uint8_t index, float_type freq_MHz);
+	int LoadDC_REG_IQ(bool tx, int16_t I, int16_t Q);
+	int SetNCOFrequency(bool tx, uint8_t index, float_type freq_MHz);
 	float_type GetNCOFrequency_MHz(bool tx, uint8_t index, float_type refClk_MHz, bool fromChip = true);
-    liblms7_status SetNCOPhaseOffsetForMode0(bool tx, float_type angle_Deg);
-	liblms7_status SetNCOPhaseOffset(bool tx, uint8_t index, float_type angle_Deg);
+    int SetNCOPhaseOffsetForMode0(bool tx, float_type angle_Deg);
+	int SetNCOPhaseOffset(bool tx, uint8_t index, float_type angle_Deg);
 	float_type GetNCOPhaseOffset_Deg(bool tx, uint8_t index);
-	liblms7_status SetGFIRCoefficients(bool tx, uint8_t GFIR_index, const int16_t *coef, uint8_t coefCount);
-	liblms7_status GetGFIRCoefficients(bool tx, uint8_t GFIR_index, int16_t *coef, uint8_t coefCount);
+	int SetGFIRCoefficients(bool tx, uint8_t GFIR_index, const int16_t *coef, uint8_t coefCount);
+	int GetGFIRCoefficients(bool tx, uint8_t GFIR_index, int16_t *coef, uint8_t coefCount);
     float_type GetReferenceClk_TSP_MHz(bool tx);
     ///@}
 
-    liblms7_status SetInterfaceFrequency(float_type cgen_freq_MHz, const uint8_t interpolation, const uint8_t decimation);
+    int SetInterfaceFrequency(float_type cgen_freq_MHz, const uint8_t interpolation, const uint8_t decimation);
 
     //! Get the sample rate in Hz
     float_type GetSampleRate(bool tx);
@@ -274,7 +273,7 @@ public:
         RxTSP, RxNCO, RxGFIR1, RxGFIR2, RxGFIR3a, RxGFIR3b, RxGFIR3c,
         MEMORY_SECTIONS_COUNT
     };
-    virtual liblms7_status SetDefaults(MemorySection module);
+    virtual int SetDefaults(MemorySection module);
 
     static const float_type gLadder_lower_limit;
     static const float_type gLadder_higher_limit;
@@ -314,25 +313,25 @@ protected:
     void SetRxDCOFF(int8_t offsetI, int8_t offsetQ);
     void CalibrateRxDC_RSSI();
     void CalibrateTxDC_RSSI(const float_type bandwidth);
-    liblms7_status CalibrateTxSetup(const float_type bandwidth_MHz);
-    liblms7_status CalibrateRxSetup(const float_type bandwidth_MHz, const bool TDD = false);
-    liblms7_status FixRXSaturation();
-    liblms7_status CheckSaturation();
-    liblms7_status CheckSaturationTxRx(const float_type bandwidth_MHz);
+    int CalibrateTxSetup(const float_type bandwidth_MHz);
+    int CalibrateRxSetup(const float_type bandwidth_MHz, const bool TDD = false);
+    int FixRXSaturation();
+    int CheckSaturation();
+    int CheckSaturationTxRx(const float_type bandwidth_MHz);
     void CoarseSearch(const uint16_t addr, const uint8_t msb, const uint8_t lsb, int16_t &value, const uint8_t maxIterations);
     void FineSearch(const uint16_t addrI, const uint8_t msbI, const uint8_t lsbI, int16_t &valueI, const uint16_t addrQ, const uint8_t msbQ, const uint8_t lsbQ, int16_t &valueQ, const uint8_t fieldSize);
 
     void FilterTuning_AdjustGains();
-    liblms7_status TuneTxFilterSetup(TxFilter type, float_type cutoff_MHz);
-    liblms7_status TuneRxFilterSetup(RxFilter type, float_type cutoff_MHz);
-    liblms7_status RFE_TIA_Calibration(float_type TIA_freq_MHz);
-    liblms7_status RxLPFLow_Calibration(float_type RxLPFL_freq_MHz);
-    liblms7_status RxLPFHigh_Calibration(float_type RxLPFH_freq_MHz);
+    int TuneTxFilterSetup(TxFilter type, float_type cutoff_MHz);
+    int TuneRxFilterSetup(RxFilter type, float_type cutoff_MHz);
+    int RFE_TIA_Calibration(float_type TIA_freq_MHz);
+    int RxLPFLow_Calibration(float_type RxLPFL_freq_MHz);
+    int RxLPFHigh_Calibration(float_type RxLPFH_freq_MHz);
 
-    liblms7_status RegistersTestInterval(uint16_t startAddr, uint16_t endAddr, uint16_t pattern, std::stringstream &ss);
-    liblms7_status SPI_write_batch(const uint16_t* spiAddr, const uint16_t* spiData, uint16_t cnt);
-    liblms7_status SPI_read_batch(const uint16_t* spiAddr, uint16_t* spiData, uint16_t cnt);
-    liblms7_status Modify_SPI_Reg_mask(const uint16_t *addr, const uint16_t *masks, const uint16_t *values, uint8_t start, uint8_t stop);
+    int RegistersTestInterval(uint16_t startAddr, uint16_t endAddr, uint16_t pattern, std::stringstream &ss);
+    int SPI_write_batch(const uint16_t* spiAddr, const uint16_t* spiData, uint16_t cnt);
+    int SPI_read_batch(const uint16_t* spiAddr, uint16_t* spiData, uint16_t cnt);
+    int Modify_SPI_Reg_mask(const uint16_t *addr, const uint16_t *masks, const uint16_t *values, uint8_t start, uint8_t stop);
     ///@}
     ///Reference clock used for Receiver frequency calculations
     float_type mRefClkSXR_MHz;
@@ -354,7 +353,7 @@ protected:
     size_t mdevIndex;
     size_t mSelfCalDepth;
 
-    liblms7_status LoadConfigLegacyFile(const char* filename);
+    int LoadConfigLegacyFile(const char* filename);
 };
 
 
