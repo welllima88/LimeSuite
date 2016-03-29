@@ -46,6 +46,14 @@ int ReportError(const int errnum);
 int ReportError(const int errnum, const char *format, ...);
 
 /*!
+ * Report an error as a formatted message string.
+ * The reported errnum is 0 - no relevant error code.
+ * \param format a format string followed by args
+ * \return a non-zero status code to return
+ */
+int ReportError(const char *format, ...);
+
+/*!
  * Report an error as an integer code and message format arguments
  * \param errnum a recognized error code
  * \param format a printf-style format string
@@ -61,6 +69,15 @@ inline int lime::ReportError(const int errnum, const char *format, ...)
     va_list argList;
     va_start(argList, format);
     int status = lime::ReportError(errnum, format, argList);
+    va_end(argList);
+    return status;
+}
+
+inline int lime::ReportError(const char *format, ...)
+{
+    va_list argList;
+    va_start(argList, format);
+    int status = lime::ReportError(0, format, argList);
     va_end(argList);
     return status;
 }

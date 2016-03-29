@@ -30,18 +30,15 @@ static int convertStatus(const LMS64CProtocol::TransferStatus &status, const LMS
 {
     if (status != LMS64CProtocol::TRANSFER_SUCCESS)
     {
-        ReportError(ECOMM);
-        return -1;
+        return ReportError(ECOMM);
     }
     switch (pkt.status)
     {
     case STATUS_COMPLETED_CMD: return 0;
     case STATUS_UNKNOWN_CMD:
-        ReportError(EPROTONOSUPPORT, "unknown lms64c protocol command");
-        return -1;
+        return ReportError(EPROTONOSUPPORT, "unknown lms64c protocol command");
     }
-    ReportError(EPROTO);
-    return -1;
+    return ReportError(EPROTO);
 }
 
 LMS64CProtocol::LMS64CProtocol(void)
@@ -57,11 +54,7 @@ LMS64CProtocol::~LMS64CProtocol(void)
 
 int LMS64CProtocol::DeviceReset(void)
 {
-    if (not this->IsOpen())
-    {
-        ReportError(ENOTCONN, "connection is not open");
-        return -1;
-    }
+    if (not this->IsOpen()) return ReportError(ENOTCONN, "connection is not open");
 
     GenericPacket pkt;
     pkt.cmd = CMD_LMS7002_RST;
@@ -77,11 +70,7 @@ int LMS64CProtocol::TransactSPI(const int addr, const uint32_t *writeData, uint3
     //! For multi-LMS7002M, RFIC # could be encoded with the slave number
     //! And the index would need to be encoded into the packet as well
 
-    if (not this->IsOpen())
-    {
-        ReportError(ENOTCONN, "connection is not open");
-        return -1;
-    }
+    if (not this->IsOpen()) return ReportError(ENOTCONN, "connection is not open");
 
     //perform spi writes when there is no read data
     if (readData == nullptr) switch(addr)
@@ -97,42 +86,31 @@ int LMS64CProtocol::TransactSPI(const int addr, const uint32_t *writeData, uint3
     case ADF4002_SPI_INDEX: return this->ReadADF4002SPI(writeData, readData, size);
     }
 
-    ReportError(ENOTSUP, "unknown spi address");
-    return -1;
+    return ReportError(EINVAL, "unknown spi address");
 }
 
 int LMS64CProtocol::WriteI2C(const int addr, const std::string &data)
 {
-    if (not this->IsOpen())
-    {
-        ReportError(ENOTCONN, "connection is not open");
-        return -1;
-    }
+    if (not this->IsOpen()) return ReportError(ENOTCONN, "connection is not open");
 
     switch(addr)
     {
     case Si5351_I2C_ADDR: return this->WriteSi5351I2C(data);
     }
 
-    ReportError(ENOTSUP, "unknown i2c address");
-    return -1;
+    return ReportError(EINVAL, "unknown i2c address");
 }
 
 int LMS64CProtocol::ReadI2C(const int addr, const size_t numBytes, std::string &data)
 {
-    if (not this->IsOpen())
-    {
-        ReportError(ENOTCONN, "connection is not open");
-        return -1;
-    }
+    if (not this->IsOpen()) return ReportError(ENOTCONN, "connection is not open");
 
     switch(addr)
     {
     case Si5351_I2C_ADDR: return this->ReadSi5351I2C(numBytes, data);
     }
 
-    ReportError(ENOTSUP, "unknown i2c address");
-    return -1;
+    return ReportError(EINVAL, "unknown i2c address");
 }
 
 double LMS64CProtocol::GetReferenceClockRate(void)
@@ -257,8 +235,7 @@ int LMS64CProtocol::WriteADF4002SPI(const uint32_t *writeData, const size_t size
 int LMS64CProtocol::ReadADF4002SPI(const uint32_t *writeData, uint32_t *readData, const size_t size)
 {
     //TODO
-    ReportError(ENOTSUP);
-    return -1;
+    return ReportError(ENOTSUP);
 }
 
 /***********************************************************************
@@ -631,15 +608,10 @@ int LMS64CProtocol::ProgramWrite(const char *data_src, const size_t length, cons
     int bytesSent = 0;
     if(length == 0)
     {
-        ReportError(EIO, "ProgramWrite length should be > 0");
-        return -1;
+        return ReportError(EIO, "ProgramWrite length should be > 0");
     }
 
-    if (not this->IsOpen())
-    {
-        ReportError(ENOTCONN, "connection is not open");
-        return -1;
-    }
+    if (not this->IsOpen()) return ReportError(ENOTCONN, "connection is not open");
 
     const int pktSize = 32;
     int data_left = length;
@@ -691,8 +663,7 @@ int LMS64CProtocol::ProgramWrite(const char *data_src, const size_t length, cons
 #ifndef NDEBUG
             printf("\n%s\n", progressMsg);
 #endif
-            ReportError(EPROTO);
-            return -1;
+            return ReportError(EPROTO);
         }
         if (device == 1 && prog_mode == 2) //only one packet is needed to initiate bitstream from flash
         {
@@ -714,8 +685,7 @@ int LMS64CProtocol::ProgramWrite(const char *data_src, const size_t length, cons
 #endif
         if(callback)
             callback(bytesSent, length, progressMsg);
-        ReportError(ECONNABORTED, "user aborted programming");
-        return -1;
+        return ReportError(ECONNABORTED, "user aborted programming");
     }
     sprintf(progressMsg, "programming: completed");
     if(callback)
@@ -741,8 +711,7 @@ int LMS64CProtocol::CustomParameterRead(const uint8_t *ids, double *values, cons
     LMS64CProtocol::TransferStatus status = this->TransferPacket(pkt);
     if (status != LMS64CProtocol::TRANSFER_SUCCESS || pkt.status != STATUS_COMPLETED_CMD)
     {
-        ReportError(EPROTO);
-        return -1;
+        return ReportError(EPROTO);
     }
 
     assert(pkt.inBuffer.size() >= 4 * count);
@@ -781,8 +750,7 @@ int LMS64CProtocol::CustomParameterWrite(const uint8_t *ids, const double *value
     LMS64CProtocol::TransferStatus status = this->TransferPacket(pkt);
     if (status != LMS64CProtocol::TRANSFER_SUCCESS || pkt.status != STATUS_COMPLETED_CMD)
     {
-        ReportError(EPROTO);
-        return -1;
+        return ReportError(EPROTO);
         //wxMessageBox(_("Board response: ") + wxString::From8BitData(status2string(pkt.status)), _("Warning"));
     }
     return 0;

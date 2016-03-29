@@ -77,20 +77,17 @@ DeviceInfo IConnection::GetDeviceInfo(void)
 
 int IConnection::TransactSPI(const int addr, const uint32_t *writeData, uint32_t *readData, const size_t size)
 {
-    ReportError(ENOTSUP);
-    return -1;
+    return ReportError(ENOTSUP);
 }
 
 int IConnection::WriteI2C(const int addr, const std::string &data)
 {
-    ReportError(ENOTSUP);
-    return -1;
+    return ReportError(ENOTSUP);
 }
 
 int IConnection::ReadI2C(const int addr, const size_t numBytes, std::string &data)
 {
-    ReportError(ENOTSUP);
-    return -1;
+    return ReportError(ENOTSUP);
 }
 
 /***********************************************************************
@@ -99,8 +96,7 @@ int IConnection::ReadI2C(const int addr, const size_t numBytes, std::string &dat
 
 int IConnection::DeviceReset(void)
 {
-    ReportError(ENOTSUP);
-    return -1;
+    return ReportError(ENOTSUP);
 }
 
 void IConnection::UpdateExternalBandSelect(const size_t channel, const int trfBand, const int rfePath)
@@ -223,14 +219,12 @@ void IConnection::SetDataLogCallback(std::function<void(bool, const unsigned cha
 
 int IConnection::ProgramWrite(const char *buffer, const size_t length, const int programmingMode, const int index, ProgrammingCallback callback)
 {
-    ReportError(ENOTSUP);
-    return -1;
+    return ReportError(ENOTSUP);
 }
 
 int IConnection::ProgramRead(char *buffer, const size_t length, const int index, ProgrammingCallback callback)
 {
-    ReportError(ENOTSUP);
-    return -1;
+    return ReportError(ENOTSUP);
 }
 
 /***********************************************************************
@@ -239,14 +233,12 @@ int IConnection::ProgramRead(char *buffer, const size_t length, const int index,
 
 int IConnection::GPIOWrite(const uint8_t *buffer, const size_t bufLength)
 {
-    ReportError(ENOTSUP);
-    return -1;
+    return ReportError(ENOTSUP);
 }
 
 int IConnection::GPIORead(uint8_t *buffer, const size_t bufLength)
 {
-    ReportError(ENOTSUP);
-    return -1;
+    return ReportError(ENOTSUP);
 }
 
 /***********************************************************************
@@ -255,14 +247,12 @@ int IConnection::GPIORead(uint8_t *buffer, const size_t bufLength)
 
 int IConnection::WriteRegisters(const uint32_t *addrs, const uint32_t *data, const size_t size)
 {
-    ReportError(ENOTSUP);
-    return -1;
+    return ReportError(ENOTSUP);
 }
 
 int IConnection::ReadRegisters(const uint32_t *addrs, uint32_t *data, const size_t size)
 {
-    ReportError(ENOTSUP);
-    return -1;
+    return ReportError(ENOTSUP);
 }
 
 int IConnection::WriteRegister(const uint32_t addr, const uint32_t data)
@@ -276,12 +266,10 @@ int IConnection::WriteRegister(const uint32_t addr, const uint32_t data)
 
 int IConnection::CustomParameterWrite(const uint8_t *ids, const double *values, const int count, const std::string* units)
 {
-    ReportError(ENOTSUP);
-    return -1;
+    return ReportError(ENOTSUP);
 }
 
 int IConnection::CustomParameterRead(const uint8_t *ids, double *values, const int count, std::string* units)
 {
-    ReportError(ENOTSUP);
-    return -1;
+    return ReportError(ENOTSUP);
 }
