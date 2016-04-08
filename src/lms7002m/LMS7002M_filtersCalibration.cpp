@@ -29,10 +29,14 @@ const float_type LMS7002M::gRxLPF_high_higher_limit = 70;
 
 liblms7_status LMS7002M::TuneTxFilterSetup(LMS7002M::TxFilter type, float_type cutoff_MHz)
 {
+    Channel ch = this->GetActiveChannel();
+
+    this->SetActiveChannel(ch);
     Modify_SPI_Reg_bits(LMS7param(EN_G_RFE), 0);
     Modify_SPI_Reg_bits(LMS7param(EN_G_TRF), 0);
 
     //RBB
+    this->SetActiveChannel(ch);
     SetDefaults(RBB);
     Modify_SPI_Reg_bits(LMS7param(PD_LPFL_RBB), 1);
     Modify_SPI_Reg_bits(LMS7param(INPUT_CTL_PGA_RBB), 3);
@@ -41,15 +45,17 @@ liblms7_status LMS7002M::TuneTxFilterSetup(LMS7002M::TxFilter type, float_type c
     Modify_SPI_Reg_bits(LMS7param(C_CTL_PGA_RBB), 3);
 
     //TBB
+    this->SetActiveChannel(ch);
     SetDefaults(TBB);
     Modify_SPI_Reg_bits(LMS7param(CG_IAMP_TBB), 1);
     Modify_SPI_Reg_bits(LMS7param(ICT_IAMP_FRP_TBB), 1);
     Modify_SPI_Reg_bits(LMS7param(ICT_IAMP_GG_FRP_TBB), 6);
 
     //AFE
+    this->SetActiveChannel(ChA);
     uint8_t isel_dac_afe = (uint8_t)Get_SPI_Reg_bits(0x0082, 15, 13);
     SetDefaults(AFE);
-    if (this->GetActiveChannel() == ChB)
+    if (ch == ChB)
     {
         Modify_SPI_Reg_bits(LMS7param(PD_TX_AFE2), 0); //PD_RX_AFE2 0
         Modify_SPI_Reg_bits(LMS7param(PD_RX_AFE2), 0); //PD_RX_AFE2 0
@@ -57,19 +63,23 @@ liblms7_status LMS7002M::TuneTxFilterSetup(LMS7002M::TxFilter type, float_type c
     Modify_SPI_Reg_bits(0x0082, 15, 13, isel_dac_afe);
 
     //BIAS
+    this->SetActiveChannel(ChA);
     uint8_t rpcalib_bias = (uint8_t)Get_SPI_Reg_bits(LMS7param(RP_CALIB_BIAS));
     SetDefaults(BIAS);
     Modify_SPI_Reg_bits(LMS7param(RP_CALIB_BIAS), rpcalib_bias);
 
     //XBUF
+    this->SetActiveChannel(ChA);
     Modify_SPI_Reg_bits(LMS7param(PD_XBUF_RX), 0);
     Modify_SPI_Reg_bits(LMS7param(PD_XBUF_TX), 0);
     Modify_SPI_Reg_bits(LMS7param(EN_G_XBUF), 1);
 
     //CGEN
+    this->SetActiveChannel(ChA);
     SetDefaults(CGEN);
 
     //txtsp
+    this->SetActiveChannel(ch);
     SetDefaults(TxTSP);
     Modify_SPI_Reg_bits(LMS7param(TSGMODE_TXTSP), 1);
     Modify_SPI_Reg_bits(LMS7param(INSEL_TXTSP), 1);
@@ -79,6 +89,7 @@ liblms7_status LMS7002M::TuneTxFilterSetup(LMS7002M::TxFilter type, float_type c
     SetNCOFrequency(Tx, 0, txNCOfreq);
 
     //rxtsp
+    this->SetActiveChannel(ch);
     SetDefaults(RxTSP);    
     SetNCOFrequency(Rx, 0, txNCOfreq - 1);
 
@@ -88,6 +99,7 @@ liblms7_status LMS7002M::TuneTxFilterSetup(LMS7002M::TxFilter type, float_type c
     Modify_SPI_Reg_bits(LMS7param(AGC_AVG_RXTSP), 7);
     Modify_SPI_Reg_bits(LMS7param(CMIX_GAIN_RXTSP), 1);
 
+    this->SetActiveChannel(ch);
     return LIBLMS7_SUCCESS;
 }
 
@@ -543,6 +555,7 @@ liblms7_status LMS7002M::TuneRxFilterSetup(RxFilter type, float_type cutoff_MHz)
     Channel ch = this->GetActiveChannel();
 
     //RFE
+    this->SetActiveChannel(ch);
     uint8_t g_tia_rfe = (uint8_t)Get_SPI_Reg_bits(LMS7param(G_TIA_RFE));
     SetDefaults(RFE);
     Modify_SPI_Reg_bits(LMS7param(SEL_PATH_RFE), 2);
@@ -566,12 +579,14 @@ liblms7_status LMS7002M::TuneRxFilterSetup(RxFilter type, float_type cutoff_MHz)
     Modify_SPI_Reg_bits(LMS7param(G_TIA_RFE), g_tia_rfe);
 
     //RBB
+    this->SetActiveChannel(ch);
     SetDefaults(RBB);
     Modify_SPI_Reg_bits(LMS7param(ICT_PGA_OUT_RBB), 20);
     Modify_SPI_Reg_bits(LMS7param(ICT_PGA_IN_RBB), 20);
     Modify_SPI_Reg_bits(LMS7param(C_CTL_PGA_RBB), 3);
 
     //TRF
+    this->SetActiveChannel(ch);
     SetDefaults(TRF);
     Modify_SPI_Reg_bits(LMS7param(L_LOOPB_TXPAD_TRF), 0);
     Modify_SPI_Reg_bits(LMS7param(EN_LOOPB_TXPAD_TRF), 1);
@@ -587,29 +602,35 @@ liblms7_status LMS7002M::TuneRxFilterSetup(RxFilter type, float_type cutoff_MHz)
     this->SetActiveChannel(ch);
 
     //TBB
+    this->SetActiveChannel(ch);
     SetDefaults(TBB);
     Modify_SPI_Reg_bits(LMS7param(CG_IAMP_TBB), 1);
     Modify_SPI_Reg_bits(LMS7param(ICT_IAMP_FRP_TBB), 1);
     Modify_SPI_Reg_bits(LMS7param(ICT_IAMP_GG_FRP_TBB), 6);
 
     //AFE
+    this->SetActiveChannel(ChA);
     SetDefaults(AFE);
     if (ch == ChB)
     {
         Modify_SPI_Reg_bits(LMS7param(PD_TX_AFE2), 0);
         Modify_SPI_Reg_bits(LMS7param(PD_RX_AFE2), 0);
     }
+
     //BIAS
+    this->SetActiveChannel(ChA);
     uint8_t rp_calib_bias = (uint8_t)Get_SPI_Reg_bits(LMS7param(RP_CALIB_BIAS));
     SetDefaults(BIAS);
     Modify_SPI_Reg_bits(LMS7param(RP_CALIB_BIAS), rp_calib_bias);
 
     //XBUF
+    this->SetActiveChannel(ChA);
     Modify_SPI_Reg_bits(LMS7param(PD_XBUF_RX), 0);
     Modify_SPI_Reg_bits(LMS7param(PD_XBUF_TX), 0);
     Modify_SPI_Reg_bits(LMS7param(EN_G_TRF), 1);
 
     //CLKGEN
+    this->SetActiveChannel(ChA);
     SetDefaults(CGEN);
 
     //SXR
@@ -628,8 +649,8 @@ liblms7_status LMS7002M::TuneRxFilterSetup(RxFilter type, float_type cutoff_MHz)
         return status;
     Modify_SPI_Reg_bits(LMS7param(PD_VCO), 0);
 
-    this->SetActiveChannel(ch);
     //TxTSP
+    this->SetActiveChannel(ch);
     SetDefaults(TxTSP);
     Modify_SPI_Reg_bits(LMS7param(TSGMODE_TXTSP), 1);
     Modify_SPI_Reg_bits(LMS7param(INSEL_TXTSP), 1);
@@ -639,6 +660,7 @@ liblms7_status LMS7002M::TuneRxFilterSetup(RxFilter type, float_type cutoff_MHz)
     SetNCOFrequency(Tx, 0, 0);
 
     //RxTSP
+    this->SetActiveChannel(ch);
     SetDefaults(RxTSP);
     Modify_SPI_Reg_bits(LMS7param(AGC_MODE_RXTSP), 1);
     Modify_SPI_Reg_bits(0x040C, 5, 3, 0x7);
@@ -648,6 +670,8 @@ liblms7_status LMS7002M::TuneRxFilterSetup(RxFilter type, float_type cutoff_MHz)
     float_type sxtfreq = GetFrequencySX_MHz(Tx);
     float_type sxrfreq = GetFrequencySX_MHz(Rx);
     SetNCOFrequency(Rx, 0, sxtfreq - sxrfreq - 1);
+
+    this->SetActiveChannel(ch);
     return LIBLMS7_SUCCESS;
 }
 

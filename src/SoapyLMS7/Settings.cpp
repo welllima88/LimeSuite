@@ -179,8 +179,10 @@ void SoapyLMS7::SetComponentsEnabled(const size_t channel, const bool enable)
     SoapySDR::logf(SOAPY_SDR_INFO, "%s LMS7002M::ch%d", enable?"Enable":"Disable", int(channel));
 
     auto rfic = getRFIC(channel);
+    auto ch = rfic->GetActiveChannel();
 
     //--- LML ---
+    rfic->SetActiveChannel(LMS7002M::ChA);
     if ((channel%2) == 0)
     {
         rfic->Modify_SPI_Reg_bits(RXEN_A, enable?1:0);
@@ -193,6 +195,7 @@ void SoapyLMS7::SetComponentsEnabled(const size_t channel, const bool enable)
     }
 
     //--- ADC/DAC ---
+    rfic->SetActiveChannel(LMS7002M::ChA);
     rfic->Modify_SPI_Reg_bits(EN_DIR_AFE, 1);
     rfic->Modify_SPI_Reg_bits(EN_G_AFE, enable?1:0);
     rfic->Modify_SPI_Reg_bits(PD_AFE, enable?0:1);
@@ -208,6 +211,7 @@ void SoapyLMS7::SetComponentsEnabled(const size_t channel, const bool enable)
     }
 
     //--- digital ---
+    rfic->SetActiveChannel(ch);
     rfic->Modify_SPI_Reg_bits(EN_RXTSP, enable?1:0);
     rfic->Modify_SPI_Reg_bits(EN_TXTSP, enable?1:0);
     rfic->Modify_SPI_Reg_bits(AGC_MODE_RXTSP, 2); //bypass
@@ -225,6 +229,7 @@ void SoapyLMS7::SetComponentsEnabled(const size_t channel, const bool enable)
     rfic->Modify_SPI_Reg_bits(GFIR1_BYP_TXTSP, 1);
 
     //--- baseband ---
+    rfic->SetActiveChannel(ch);
     rfic->Modify_SPI_Reg_bits(EN_DIR_RBB, 1);
     rfic->Modify_SPI_Reg_bits(EN_DIR_TBB, 1);
     rfic->Modify_SPI_Reg_bits(EN_G_RBB, enable?1:0);
@@ -232,6 +237,7 @@ void SoapyLMS7::SetComponentsEnabled(const size_t channel, const bool enable)
     rfic->Modify_SPI_Reg_bits(PD_PGA_RBB, enable?0:1);
 
     //--- frontend ---
+    rfic->SetActiveChannel(ch);
     rfic->Modify_SPI_Reg_bits(EN_DIR_RFE, 1);
     rfic->Modify_SPI_Reg_bits(EN_DIR_TRF, 1);
     rfic->Modify_SPI_Reg_bits(EN_G_RFE, enable?1:0);
@@ -243,10 +249,12 @@ void SoapyLMS7::SetComponentsEnabled(const size_t channel, const bool enable)
     rfic->Modify_SPI_Reg_bits(PD_TXPAD_TRF, enable?0:1);
 
     //--- synthesizers ---
+    rfic->SetActiveChannel(ch);
     rfic->Modify_SPI_Reg_bits(EN_DIR_SXRSXT, 1);
     rfic->Modify_SPI_Reg_bits(EN_G, enable?1:0);
-    if (channel == 0) //enable LO to channel B
+    if (ch == LMS7002M::ChB) //enable LO to channel B
     {
+        rfic->SetActiveChannel(LMS7002M::ChA);
         rfic->Modify_SPI_Reg_bits(EN_NEXTRX_RFE, 1);
         rfic->Modify_SPI_Reg_bits(EN_NEXTTX_TRF, 1);
     }

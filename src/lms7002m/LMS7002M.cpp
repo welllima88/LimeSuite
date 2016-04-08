@@ -1902,6 +1902,9 @@ liblms7_status LMS7002M::SetInterfaceFrequency(float_type cgen_freq_MHz, const u
     if (status != LIBLMS7_SUCCESS)
         return status;
 
+    //set the default register space for LML
+    this->SetActiveChannel(ChA);
+
     if (decimation == 7 || decimation == 0) //bypass
     {
         Modify_SPI_Reg_bits(LMS7param(RXTSPCLKA_DIV), 0);
@@ -1965,6 +1968,8 @@ void LMS7002M::ConfigureLML_RF2BB(
     const LMLSampleSource s2,
     const LMLSampleSource s3)
 {
+    this->SetActiveChannel(ChA);
+
     //map a sample source to a position
     std::map<LMLSampleSource, int> m;
     m[AI] = 1;
@@ -1991,6 +1996,8 @@ void LMS7002M::ConfigureLML_BB2RF(
     const LMLSampleSource s2,
     const LMLSampleSource s3)
 {
+    this->SetActiveChannel(ChA);
+
     //map a sample source to a position
     std::map<LMLSampleSource, int> m;
     m[s3] = 2;
