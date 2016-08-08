@@ -602,12 +602,12 @@ void ConnectionSTREAM::UpdateExternalDataRate(const size_t channel, const double
 
 void ConnectionSTREAM::EnterSelfCalibration(const size_t channel)
 {
-    if (mStreamService) mStreamService->stop();
+    //if (mStreamService) mStreamService->stop();
 }
 
 void ConnectionSTREAM::ExitSelfCalibration(const size_t channel)
 {
-    if (mStreamService) mStreamService->start();
+    //if (mStreamService) mStreamService->start();
 }
 
 uint64_t ConnectionSTREAM::GetHardwareTimestamp(void)
