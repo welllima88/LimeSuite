@@ -34,7 +34,8 @@ struct USBStreamService : StreamerLTE
     ):
         StreamerLTE(dataPort),
         format(format),
-        rxStreamUseCount(1), //always need rx for status reporting
+        //rxStreamUseCount(1), //always need rx for status reporting
+        rxStreamUseCount(0), //off for testing...
         txStreamUseCount(0),
         mTxThread(nullptr),
         mRxThread(nullptr),
@@ -344,10 +345,6 @@ std::string ConnectionSTREAM::SetupStream(size_t &streamID, const StreamConfig &
     if (config.isTx) rfic.ConfigureLML_BB2RF(s1, s0, s3, s2); //intentional swap
     else             rfic.ConfigureLML_RF2BB(s0, s1, s2, s3);
 
-    if (config.isTx) mStreamService->txStreamUseCount++;
-    if (!config.isTx) mStreamService->rxStreamUseCount++;
-    mStreamService->updateThreadState();
-
     streamID = size_t(new USBStreamServiceChannel(config.isTx, channels.size(), convertFloat));
     return ""; //success
 }
@@ -371,6 +368,10 @@ size_t ConnectionSTREAM::GetStreamSize(const size_t streamID)
 bool ConnectionSTREAM::ControlStream(const size_t streamID, const bool enable, const size_t burstSize, const StreamMetadata &metadata)
 {
     auto *stream = (USBStreamServiceChannel *)streamID;
+
+    if (stream->isTx) mStreamService->txStreamUseCount++;
+    if (!stream->isTx) mStreamService->rxStreamUseCount++;
+    mStreamService->updateThreadState();
 
     if (!stream->isTx)
     {
