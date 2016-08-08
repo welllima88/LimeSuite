@@ -369,9 +369,12 @@ bool ConnectionSTREAM::ControlStream(const size_t streamID, const bool enable, c
 {
     auto *stream = (USBStreamServiceChannel *)streamID;
 
-    if (stream->isTx) mStreamService->txStreamUseCount++;
-    if (!stream->isTx) mStreamService->rxStreamUseCount++;
-    mStreamService->updateThreadState();
+    if (enable)
+    {
+        if (stream->isTx and mStreamService->txStreamUseCount == 0) mStreamService->txStreamUseCount++;
+        if (!stream->isTx and mStreamService->rxStreamUseCount == 0) mStreamService->rxStreamUseCount++;
+        mStreamService->updateThreadState();
+    }
 
     if (!stream->isTx)
     {
