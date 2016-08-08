@@ -139,6 +139,10 @@ struct USBStreamService : StreamerLTE
 
         if (mRxThread == nullptr and rxStreamUseCount != 0 and not forceStop)
         {
+
+            //redundant clear before stream thread start
+            ResetUSBFIFO(dynamic_cast<LMS64CProtocol *>(mDataPort));
+
             //restore stream state continuous
             if (rxStreamingContinuous)
             {
