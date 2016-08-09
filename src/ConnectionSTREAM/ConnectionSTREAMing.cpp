@@ -99,6 +99,15 @@ struct USBStreamService : StreamerLTE
         pkt.outBuffer.push_back(tcxo_value & 0xFF);
 
         dataPort->TransferPacket(pkt);
+
+        //reset LML TSP logic registers
+        uint16_t reg20 = rfic.SPI_read(0x0020, true);
+        rfic.SPI_write(0x0020, reg20 & ~0xAA00);
+        rfic.SPI_write(0x0020, reg20);
+
+        //switch on Rx
+        interface_ctrl_000A = Reg_read(mDataPort, 0x000A);
+        Reg_write(mDataPort, 0x000A, interface_ctrl_000A | 0x1);
     }
 
     ~USBStreamService(void)
@@ -130,17 +139,11 @@ struct USBStreamService : StreamerLTE
 
         if (mRxThread == nullptr and rxStreamUseCount != 0 and not forceStop)
         {
-
             //redundant clear before stream thread start
             ResetUSBFIFO(dynamic_cast<LMS64CProtocol *>(mDataPort));
 
-            //reset LML TSP logic registers
-            uint16_t reg20 = rfic.SPI_read(0x0020, true);
-            rfic.SPI_write(0x0020, reg20 & ~0xAA00);
-            rfic.SPI_write(0x0020, reg20);
-
             //switch on Rx
-            interface_ctrl_000A = Reg_read(mDataPort, 0x000A);
+            auto interface_ctrl_000A = Reg_read(mDataPort, 0x000A);
             Reg_write(mDataPort, 0x000A, interface_ctrl_000A | 0x1);
 
             //restore stream state continuous
